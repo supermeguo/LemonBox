@@ -526,7 +526,7 @@
             tools:src="@drawable/play_rewind" />
     </LinearLayout>
 
-    <com.github.tvbox.osc.subtitle.widget.SimpleSubtitleView
+    <com.github.lemon.osc.subtitle.widget.SimpleSubtitleView
         android:id="@+id/subtitle_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

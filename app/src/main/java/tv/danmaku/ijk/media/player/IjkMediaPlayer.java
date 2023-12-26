@@ -42,7 +42,7 @@ import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 
-import com.github.tvbox.osc.base.App;
+import com.github.lemon.osc.base.App;
 
 import java.io.BufferedReader;
 import java.io.File;
