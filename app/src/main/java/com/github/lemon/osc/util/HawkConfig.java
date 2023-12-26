@@ -61,6 +61,7 @@ public class HawkConfig {
     public static final String LIVE_SHOW_NET_SPEED = "live_show_net_speed";
     public static final String LIVE_SHOW_TIME = "live_show_time";
     public static final String LIVE_SKIP_PASSWORD = "live_skip_password";
+    public static final String CLUD_VERSION_CODE = "clud_version_code";
 
     public static boolean isDebug() {
         return Hawk.get(DEBUG_OPEN, false);

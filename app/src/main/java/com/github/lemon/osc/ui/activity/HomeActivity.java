@@ -1,5 +1,7 @@
 package com.github.lemon.osc.ui.activity;
 
+import static com.github.lemon.osc.util.XMLServiceUtils.VERSION_URL_PATH;
+
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -32,6 +34,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.viewpager.widget.ViewPager;
 
+import com.github.lemon.osc.BuildConfig;
 import com.github.lemon.osc.R;
 import com.github.lemon.osc.api.ApiConfig;
 import com.github.lemon.osc.base.BaseActivity;
@@ -39,11 +42,14 @@ import com.github.lemon.osc.base.BaseLazyFragment;
 import com.github.lemon.osc.bean.AbsSortXml;
 import com.github.lemon.osc.bean.MovieSort;
 import com.github.lemon.osc.bean.SourceBean;
+import com.github.lemon.osc.bean.VersionBean;
+import com.github.lemon.osc.callback.RequestCallback;
 import com.github.lemon.osc.event.RefreshEvent;
 import com.github.lemon.osc.server.ControlManager;
 import com.github.lemon.osc.ui.adapter.HomePageAdapter;
 import com.github.lemon.osc.ui.adapter.SelectDialogAdapter;
 import com.github.lemon.osc.ui.adapter.SortAdapter;
+import com.github.lemon.osc.ui.dialog.CheckVersionDialog;
 import com.github.lemon.osc.ui.dialog.SelectDialog;
 import com.github.lemon.osc.ui.dialog.TipDialog;
 import com.github.lemon.osc.ui.fragment.GridFragment;
@@ -57,7 +63,9 @@ import com.github.lemon.osc.util.DefaultConfig;
 import com.github.lemon.osc.util.FileUtils;
 import com.github.lemon.osc.util.HawkConfig;
 import com.github.lemon.osc.util.LOG;
+import com.github.lemon.osc.util.XMLServiceUtils;
 import com.github.lemon.osc.viewmodel.SourceViewModel;
+import com.google.gson.Gson;
 import com.orhanobut.hawk.Hawk;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 import com.owen.tvrecyclerview.widget.V7GridLayoutManager;
@@ -140,6 +148,50 @@ public class HomeActivity extends BaseActivity {
             useCacheConfig = bundle.getBoolean("useCache", false);
         }
         initData();
+        checkVersion();
+    }
+
+    private void checkVersion() {
+        XMLServiceUtils.getXMLData(VERSION_URL_PATH, new RequestCallback() {
+            @Override
+            public void onSuccess(String result) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        VersionBean versionBean = new Gson().fromJson(result, VersionBean.class);
+                        int cludVersionCode = versionBean.getVersionCode();
+                        int localVersionCode = (int) Hawk.get(HawkConfig.CLUD_VERSION_CODE, 0);
+                        int versionCode = BuildConfig.VERSION_CODE;
+                        if (localVersionCode == cludVersionCode) {
+                            return;
+                        }
+                        if (cludVersionCode > versionCode) {
+                            CheckVersionDialog checkVersionDialog = new CheckVersionDialog(HomeActivity.this);
+                            checkVersionDialog.setVersionData(versionBean);
+                            checkVersionDialog.setMyDialogCallback(new CheckVersionDialog.DialogCallback() {
+                                @Override
+                                public void onCancel() {
+                                    Hawk.put(HawkConfig.CLUD_VERSION_CODE, versionBean.getVersionCode());
+                                }
+
+                                @Override
+                                public void onConfirm() {
+                                    Uri uri = Uri.parse(versionBean.getDownLoadUrl());
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                    startActivity(intent);
+                                }
+                            });
+                            checkVersionDialog.show();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMSG) {
+                Toast.makeText(HomeActivity.this, "检查版本失败", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     // takagen99: Added to allow read string
@@ -404,7 +456,7 @@ public class HomeActivity extends BaseActivity {
                                 if (!useCacheConfig) {
                                     if (Hawk.get(HawkConfig.HOME_DEFAULT_SHOW, false)) {
                                         jumpActivity(LivePlayActivity.class);
-                                   }
+                                    }
                                     Toast.makeText(HomeActivity.this, getString(R.string.hm_ok), Toast.LENGTH_SHORT).show();
                                 }
                                 initData();

@@ -6,14 +6,22 @@ def static buildTime() {
 }
 
 android {
+    signingConfigs {
+        debug {
+            storeFile file('../lemon.jks')
+            storePassword '123123'
+            keyPassword '123123'
+            keyAlias 'key0'
+        }
+    }
     compileSdk 33
 
     defaultConfig {
         applicationId 'com.github.tvbox.osc.lemon'
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0.".concat(buildTime())
+        versionCode 100
+        versionName "1.0.0"
         multiDexEnabled true
         //设置room的Schema的位置
         javaCompileOptions {
@@ -27,13 +35,23 @@ android {
         exclude 'META-INF/DEPENDENCIES'
     }
 
-    buildTypes {        
+    buildTypes {
+        debug {
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled false
+            debuggable = true
+            signingConfig signingConfigs.debug
+//            ndk {
+//                abiFilters 'armeabi-v7a'
+//            }
+        }
         release {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             minifyEnabled true
-            ndk {
-                abiFilters 'armeabi-v7a'                
-            }
+            signingConfig signingConfigs.debug
+//            ndk {
+//                abiFilters 'armeabi-v7a'
+//            }
         }
     }
 
@@ -49,6 +67,12 @@ android {
     
     buildFeatures {
         dataBinding = true
+    }
+    android.applicationVariants.configureEach { variant ->
+        variant.outputs.configureEach {
+            def fileName = "LMBox_v${defaultConfig.versionName}.apk"
+            outputFileName = fileName
+        }
     }
 }
 
@@ -127,4 +151,6 @@ dependencies {
             exclude group: 'xpp3', module: 'xpp3'
         }
     }
+    //下载进度
+    implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">LMTVBox</string>
+    <string name="app_name">LMBox</string>
     <string name="app_home">Home</string>
     <string name="app_source"></string>
 
@@ -175,6 +175,7 @@
     <string name="exo_track_role_closed_captions">CC</string>
     <string name="exo_track_bitrate">%1$.2f Mbps</string>
     <string name="exo_item_list">%1$s，%2$s</string>
+    <string name="mn_version">version</string>
 
     <string-array name="doh_name">
         <item>System</item>

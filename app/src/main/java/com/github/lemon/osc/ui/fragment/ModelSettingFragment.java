@@ -1,7 +1,11 @@
 package com.github.lemon.osc.ui.fragment;
 
+import static com.github.lemon.osc.util.XMLServiceUtils.VERSION_URL_PATH;
+import static com.lzy.okgo.utils.HttpUtils.runOnUiThread;
+
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +17,16 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
 
 
+import com.github.lemon.osc.BuildConfig;
 import com.github.lemon.osc.R;
 import com.github.lemon.osc.api.ApiConfig;
 import com.github.lemon.osc.base.BaseActivity;
 import com.github.lemon.osc.base.BaseLazyFragment;
 import com.github.lemon.osc.bean.IJKCode;
 import com.github.lemon.osc.bean.SourceBean;
+import com.github.lemon.osc.bean.VersionBean;
+import com.github.lemon.osc.callback.RequestCallback;
+import com.github.lemon.osc.ui.activity.HomeActivity;
 import com.github.lemon.osc.ui.activity.SettingActivity;
 import com.github.lemon.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.lemon.osc.ui.adapter.SelectDialogAdapter;
@@ -26,6 +34,7 @@ import com.github.lemon.osc.ui.dialog.AboutDialog;
 import com.github.lemon.osc.ui.dialog.ApiDialog;
 import com.github.lemon.osc.ui.dialog.ApiHistoryDialog;
 import com.github.lemon.osc.ui.dialog.BackupDialog;
+import com.github.lemon.osc.ui.dialog.CheckVersionDialog;
 import com.github.lemon.osc.ui.dialog.HomeIconDialog;
 import com.github.lemon.osc.ui.dialog.SelectDialog;
 import com.github.lemon.osc.ui.dialog.XWalkInitDialog;
@@ -34,6 +43,8 @@ import com.github.lemon.osc.util.HawkConfig;
 import com.github.lemon.osc.util.HistoryHelper;
 import com.github.lemon.osc.util.OkGoHelper;
 import com.github.lemon.osc.util.PlayerHelper;
+import com.github.lemon.osc.util.XMLServiceUtils;
+import com.google.gson.Gson;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.Progress;
@@ -138,6 +149,7 @@ public class ModelSettingFragment extends BaseLazyFragment {
         tvDns.setText(OkGoHelper.dnsHttpsList.get(Hawk.get(HawkConfig.DOH_URL, 0)));
 		tvHomeDefaultShow = findViewById(R.id.tvHomeDefaultShow);
         tvHomeDefaultShow.setText(Hawk.get(HawkConfig.HOME_DEFAULT_SHOW, false) ? "开启" : "关闭");
+        ((TextView) findViewById(R.id.tvVersion)).setText("v "+BuildConfig.VERSION_NAME);
 
         //takagen99 : Set HomeApi as default
         findViewById(R.id.llHomeApi).requestFocus();
@@ -825,6 +837,54 @@ public class ModelSettingFragment extends BaseLazyFragment {
             }
         };
 
+        findViewById(R.id.llVersion).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                checkVersion();
+            }
+        });
+    }
+    private void checkVersion() {
+
+        XMLServiceUtils.getXMLData(VERSION_URL_PATH, new RequestCallback() {
+            @Override
+            public void onSuccess(String result) {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        VersionBean versionBean = new Gson().fromJson(result, VersionBean.class);
+                        int cludVersionCode = versionBean.getVersionCode();
+                        int versionCode = BuildConfig.VERSION_CODE;
+
+                        if (cludVersionCode > versionCode) {
+                            CheckVersionDialog checkVersionDialog = new CheckVersionDialog(mContext);
+                            checkVersionDialog.setVersionData(versionBean);
+                            checkVersionDialog.setMyDialogCallback(new CheckVersionDialog.DialogCallback() {
+                                @Override
+                                public void onCancel() {
+                                    Hawk.put(HawkConfig.CLUD_VERSION_CODE, versionBean.getVersionCode());
+                                }
+
+                                @Override
+                                public void onConfirm() {
+                                    Uri uri = Uri.parse(versionBean.getDownLoadUrl());
+                                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                                    startActivity(intent);
+                                }
+                            });
+                            checkVersionDialog.show();
+                        }else {
+                            Toast.makeText(mContext,"当前是最新版本",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
+            @Override
+            public void onError(String errorMSG) {
+                Toast.makeText(mContext, "检查版本失败", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override

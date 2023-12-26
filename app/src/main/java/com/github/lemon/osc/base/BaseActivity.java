@@ -25,6 +25,7 @@ import com.github.lemon.osc.ui.activity.DetailActivity;
 import com.github.lemon.osc.util.AppManager;
 import com.github.lemon.osc.util.HawkConfig;
 import com.github.lemon.osc.util.LocaleHelper;
+import com.github.lemon.osc.util.ScreenUtils;
 import com.kingja.loadsir.callback.Callback;
 import com.kingja.loadsir.core.LoadService;
 import com.kingja.loadsir.core.LoadSir;
@@ -319,8 +320,8 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
                 // 从Options中获取图片的分辨率
                 int imageHeight = opts.outHeight;
                 int imageWidth = opts.outWidth;
-                int picHeight = 720;
-                int picWidth = 1080;
+                int picHeight = com.blankj.utilcode.util.ScreenUtils.getScreenHeight();
+                int picWidth = com.blankj.utilcode.util.ScreenUtils.getScreenWidth();
                 int scaleX = imageWidth / picWidth;
                 int scaleY = imageHeight / picHeight;
                 int scale = Math.max(Math.max(scaleX, scaleY), 1);
@@ -338,7 +339,7 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
         if (globalWp != null) {
             getWindow().setBackgroundDrawable(globalWp);
         } else {
-            getWindow().setBackgroundDrawableResource(R.drawable.app_bg);
+            getWindow().setBackgroundDrawable(mContext.getDrawable(R.drawable.app_groud));
         }
     }
 }
