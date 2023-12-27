@@ -29,7 +29,7 @@ public class DownLoadFileUtils {
             @Override
             public void onStart(Request<File, ? extends Request> request) {
                 super.onStart(request);
-
+                Log.i("dddddd", "onStart");
             }
 
             @Override
@@ -49,15 +49,16 @@ public class DownLoadFileUtils {
             @Override
             public void onError(com.lzy.okgo.model.Response<File> response) {
                 super.onError(response);
-
+                Log.i("dddddd", "onError="+response.getException().toString());
             }
 
             @Override
             public void downloadProgress(Progress progress) {
                 super.downloadProgress(progress);
+                Log.i("dddddd", "downloadProgress");
                 float dLProgress = progress.fraction;
                 if (downLoadCallback != null) {
-                    downLoadCallback.onProgress(dLProgress*100);
+                    downLoadCallback.onProgress(dLProgress * 100);
                 }
             }
         });
@@ -75,6 +76,7 @@ public class DownLoadFileUtils {
         if (!basePath.exists()) {
             basePath.mkdirs();
             System.out.println("文件夹创建成功");
+            Log.i("dddddd", "文件夹创建成功");
         }
         return mClassifyPath;
     }

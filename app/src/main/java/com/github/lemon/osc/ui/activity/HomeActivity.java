@@ -29,6 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DiffUtil;
@@ -113,6 +114,7 @@ public class HomeActivity extends BaseActivity {
     public View sortFocusView = null;
     private final Handler mHandler = new Handler();
     private long mExitTime = 0;
+
     private final Runnable mRunnable = new Runnable() {
         @SuppressLint({"DefaultLocale", "SetTextI18n"})
         @Override
@@ -146,6 +148,11 @@ public class HomeActivity extends BaseActivity {
         if (intent != null && intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();
             useCacheConfig = bundle.getBoolean("useCache", false);
+        }
+        if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)&&hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+        } else {
+            ActivityCompat.requestPermissions(this, DefaultConfig.StoragePermissionGroup(), 1);
         }
         initData();
         checkVersion();

@@ -1,5 +1,6 @@
 package com.github.lemon.osc.ui.dialog;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.github.lemon.osc.R;
@@ -17,8 +19,6 @@ import com.github.lemon.osc.ui.activity.HomeActivity;
 import com.github.lemon.osc.ui.adapter.BackupAdapter;
 import com.github.lemon.osc.util.DefaultConfig;
 import com.github.lemon.osc.util.FileUtils;
-import com.hjq.permissions.OnPermissionCallback;
-import com.hjq.permissions.XXPermissions;
 import com.owen.tvrecyclerview.widget.TvRecyclerView;
 
 import org.jetbrains.annotations.NotNull;
@@ -63,30 +63,10 @@ public class BackupDialog extends BaseDialog {
         findViewById(R.id.storagePermission).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (XXPermissions.isGranted(getContext(), DefaultConfig.StoragePermissionGroup())) {
-                    Toast.makeText(getContext(), HomeActivity.getRes().getString(R.string.set_permission_ok), Toast.LENGTH_SHORT).show();
+                if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)&&hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    Toast.makeText(getContext(), "已获得存储权限", Toast.LENGTH_SHORT).show();
                 } else {
-                    XXPermissions.with(getContext())
-                            .permission(DefaultConfig.StoragePermissionGroup())
-                            .request(new OnPermissionCallback() {
-                                @Override
-                                public void onGranted(List<String> permissions, boolean all) {
-                                    if (all) {
-                                        adapter.setNewData(allBackup());
-                                        Toast.makeText(getContext(), HomeActivity.getRes().getString(R.string.set_permission_ok), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-
-                                @Override
-                                public void onDenied(List<String> permissions, boolean never) {
-                                    if (never) {
-                                        Toast.makeText(getContext(), HomeActivity.getRes().getString(R.string.set_permission_fail2), Toast.LENGTH_SHORT).show();
-                                        XXPermissions.startPermissionActivity((Activity) getContext(), permissions);
-                                    } else {
-                                        Toast.makeText(getContext(), HomeActivity.getRes().getString(R.string.set_permission_fail1), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+                    ActivityCompat.requestPermissions((Activity) context,  DefaultConfig.StoragePermissionGroup(), 1);
                 }
             }
         });
@@ -193,7 +173,6 @@ public class BackupDialog extends BaseDialog {
             Toast.makeText(getContext(), HomeActivity.getRes().getString(R.string.set_bkup_fail), Toast.LENGTH_SHORT).show();
         }
     }
-
     void delete(String dir) {
         try {
             String root = Environment.getExternalStorageDirectory().getAbsolutePath();

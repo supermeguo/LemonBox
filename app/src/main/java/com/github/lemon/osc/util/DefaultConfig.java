@@ -1,5 +1,6 @@
 package com.github.lemon.osc.util;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -183,7 +184,8 @@ public class DefaultConfig {
 
     public static String[] StoragePermissionGroup() {
         return new String[] {
-                Permission.MANAGE_EXTERNAL_STORAGE
+                Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                Manifest.permission.READ_EXTERNAL_STORAGE
         };
     }
 

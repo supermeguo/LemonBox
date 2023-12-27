@@ -1,5 +1,6 @@
 package com.github.lemon.osc.ui.dialog;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 
 import com.github.lemon.osc.R;
 import com.github.lemon.osc.event.RefreshEvent;
@@ -18,8 +20,6 @@ import com.github.lemon.osc.ui.adapter.ApiHistoryDialogAdapter;
 import com.github.lemon.osc.ui.tv.QRCodeGen;
 import com.github.lemon.osc.util.DefaultConfig;
 import com.github.lemon.osc.util.HawkConfig;
-import com.hjq.permissions.OnPermissionCallback;
-import com.hjq.permissions.XXPermissions;
 import com.orhanobut.hawk.Hawk;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -27,7 +27,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import me.jessyan.autosize.utils.AutoSizeUtils;
 
@@ -203,29 +202,10 @@ public class ApiDialog extends BaseDialog {
         findViewById(R.id.storagePermission).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (XXPermissions.isGranted(getContext(), DefaultConfig.StoragePermissionGroup())) {
+                if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)&&hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE)) {
                     Toast.makeText(getContext(), "已获得存储权限", Toast.LENGTH_SHORT).show();
                 } else {
-                    XXPermissions.with(getContext())
-                            .permission(DefaultConfig.StoragePermissionGroup())
-                            .request(new OnPermissionCallback() {
-                                @Override
-                                public void onGranted(List<String> permissions, boolean all) {
-                                    if (all) {
-                                        Toast.makeText(getContext(), "已获得存储权限", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-
-                                @Override
-                                public void onDenied(List<String> permissions, boolean never) {
-                                    if (never) {
-                                        Toast.makeText(getContext(), "获取存储权限失败,请在系统设置中开启", Toast.LENGTH_SHORT).show();
-                                        XXPermissions.startPermissionActivity((Activity) getContext(), permissions);
-                                    } else {
-                                        Toast.makeText(getContext(), "获取存储权限失败", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            });
+                    ActivityCompat.requestPermissions((Activity) context,  DefaultConfig.StoragePermissionGroup(), 1);
                 }
             }
         });

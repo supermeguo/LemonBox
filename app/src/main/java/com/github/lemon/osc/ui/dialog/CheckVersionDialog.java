@@ -76,9 +76,9 @@ public class CheckVersionDialog extends BaseDialog {
                     return;
                 }
                 isFinsh = false;
-                String localPath = DownLoadFileUtils.customLocalStoragePath("Lemon Box");
+                String localPath = DownLoadFileUtils.customLocalStoragePath("lemonBox");
                 DownLoadFileUtils.downloadFile(mContext, versionBean.getDownLoadUrl(), localPath,
-                        "CatTv", versionBean.getDownLoadUrl(), new DownLoadFileUtils.DownLoadCallback() {
+                        "LMBox", versionBean.getDownLoadUrl(), new DownLoadFileUtils.DownLoadCallback() {
                             @Override
                             public void onProgress(float progress) {
                                 isFinsh = false;

@@ -8,8 +8,10 @@ import android.view.View;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.PermissionChecker;
 
 import com.github.lemon.osc.R;
+import com.github.lemon.osc.base.App;
 
 import xyz.doikki.videoplayer.util.CutoutUtil;
 
@@ -47,5 +49,15 @@ public class BaseDialog extends Dialog {
             uiOptions |= View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
             getWindow().getDecorView().setSystemUiVisibility(uiOptions);
         }
+    }
+
+    public boolean hasPermission(String permission) {
+        boolean has = true;
+        try {
+            has = PermissionChecker.checkSelfPermission(App.getInstance().getBaseContext(), permission) == PermissionChecker.PERMISSION_GRANTED;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return has;
     }
 }
