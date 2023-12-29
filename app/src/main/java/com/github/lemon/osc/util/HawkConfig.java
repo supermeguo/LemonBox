@@ -10,7 +10,7 @@ import com.orhanobut.hawk.Hawk;
 public class HawkConfig {
     public static final String PUSH_TO_ADDR = "push_to_addr"; // 推送到地址的IP
     public static final String PUSH_TO_PORT = "push_to_port"; // 推送到地址的端口
-    public static final String DEFAUT_API_URL = "https://mirror.ghproxy.com/https://raw.githubusercontent.com/supermeguo/BoxRes/main/Myuse/catcr.json";
+    public static final String DEFAUT_API_URL = "https://mirror.ghproxy.com/https://raw.githubusercontent.com/supermeguo/BoxRes/main/Myuse/cat.json";
     // URL Configurations
     public static final String API_URL = "api_url";
     public static final String API_HISTORY = "api_history";
