@@ -95,7 +95,7 @@ public class CheckVersionDialog extends BaseDialog {
 
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                    apkUri = FileProvider.getUriForFile(mContext, "com.github.tvbox.osc.lemon.fileprovider", new File(mBasePath));
+                                    apkUri = FileProvider.getUriForFile(mContext, BuildConfig.APPLICATION_ID+".fileprovider", new File(mBasePath));
                                 } else {
                                     apkUri = Uri.fromFile(new File(mBasePath));
                                 }
