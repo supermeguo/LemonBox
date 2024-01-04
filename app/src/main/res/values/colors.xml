@@ -51,4 +51,6 @@
     <!-- Unused Subtitle Text -->
     <color name="color_FFB6C1">#FFB6C1</color>
     <color name="color_6CFFFFFF">#6CFFFFFF</color>
+    <color name="color_55AE26">#2F56F800</color>
+    <color name="color_FAE100">#2CC4FA00</color>
 </resources>
