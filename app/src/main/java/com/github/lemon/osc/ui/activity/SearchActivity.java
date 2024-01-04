@@ -5,7 +5,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -85,7 +87,7 @@ public class SearchActivity extends BaseActivity {
     private ImageView tvSearchCheckbox;
     private static HashMap<String, String> mCheckSources = null;
     private SearchCheckboxDialog mSearchCheckboxDialog = null;
-
+    private List<String> searchRecord = new ArrayList<>();
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_search;
@@ -165,10 +167,28 @@ public class SearchActivity extends BaseActivity {
                 return false;
             }
         });
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (etSearch.getText().toString().trim().length()==0) {
+                    wordAdapter.setNewData(searchRecord);
+                }
+            }
+        });
         wordAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                search(wordAdapter.getItem(position));
+                search(wordAdapter.getItem(position),true);
             }
         });
         mGridView.setHasFixedSize(true);
@@ -208,7 +228,7 @@ public class SearchActivity extends BaseActivity {
                 FastClickCheckUtil.check(v);
                 String wd = etSearch.getText().toString().trim();
                 if (!TextUtils.isEmpty(wd)) {
-                    search(wd);
+                    search(wd,true);
                 } else {
                     Toast.makeText(mContext, getString(R.string.search_input), Toast.LENGTH_SHORT).show();
                 }
@@ -282,7 +302,7 @@ public class SearchActivity extends BaseActivity {
         OkGo.get("https://tv.aiseet.atianqi.com/i-tvbin/qtv_video/search/get_search_smart_box")
                 .params("format", "json")
                 .params("page_num", 0)
-                .params("page_size", 50) //随便改
+                .params("page_size", 10) //随便改
                 .params("key", key)
                 .execute(new AbsCallback() {
                     @Override
@@ -319,13 +339,18 @@ public class SearchActivity extends BaseActivity {
     }
 
     private void initData() {
+        searchRecord = Hawk.get(HawkConfig.SEARCH_RECORD_DATAS);
+        if (searchRecord == null) {
+            searchRecord = new ArrayList<>();
+        }
+        wordAdapter.setNewData(searchRecord);
         refreshQRCode();
         initCheckedSourcesForSearch();
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra("title")) {
             String title = intent.getStringExtra("title");
             showLoading();
-            search(title);
+            search(title,false);
         }
         // 加载热词
         loadHotSearch();
@@ -340,7 +365,7 @@ public class SearchActivity extends BaseActivity {
                     @Override
                     public void onSuccess(Response<String> response) {
                         try {
-                            ArrayList<String> hots = new ArrayList<>();
+//                            ArrayList<String> hots = new ArrayList<>();
                             JsonObject mapResult = JsonParser.parseString(response.body())
                                     .getAsJsonObject()
                                     .get("data").getAsJsonObject()
@@ -352,12 +377,12 @@ public class SearchActivity extends BaseActivity {
                                 for (JsonElement ele : itemList) {
                                     JsonObject obj = (JsonObject) ele;
                                     String hotKey = obj.get("title").getAsString().trim().replaceAll("<|>|《|》|-", "").split(" ")[0];
-                                    if (!hots.contains(hotKey))
-                                        hots.add(hotKey);
+                                    if (!searchRecord.contains(hotKey))
+                                        searchRecord.add(hotKey);
                                 }
                             }
 
-                            wordAdapter.setNewData(hots);
+                            wordAdapter.setNewData(searchRecord);
                         } catch (Throwable th) {
                             th.printStackTrace();
                         }
@@ -381,7 +406,7 @@ public class SearchActivity extends BaseActivity {
         if (event.type == ServerEvent.SERVER_SEARCH) {
             String title = (String) event.obj;
             showLoading();
-            search(title);
+            search(title,true);
         }
     }
 
@@ -404,7 +429,19 @@ public class SearchActivity extends BaseActivity {
         mCheckSources = checkedSources;
     }
 
-    private void search(String title) {
+    private void search(String title,boolean isSave) {
+        if (isSave) {
+            if (searchRecord.contains(title)) {
+                searchRecord.remove(title);
+            }
+            searchRecord.add(0, title);
+            if (searchRecord.size()>10) {
+                searchRecord.remove(searchRecord.size()-1);
+            }
+            wordAdapter.notifyDataSetChanged();
+            Hawk.put(HawkConfig.SEARCH_RECORD_DATAS, searchRecord);
+        }
+
         cancel();
         showLoading();
         etSearch.setText(title);
@@ -412,6 +449,7 @@ public class SearchActivity extends BaseActivity {
         mGridView.setVisibility(View.INVISIBLE);
         searchAdapter.setNewData(new ArrayList<>());
         searchResult();
+
     }
 
     private ExecutorService searchExecutorService = null;

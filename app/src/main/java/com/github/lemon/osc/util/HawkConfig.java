@@ -63,6 +63,8 @@ public class HawkConfig {
     public static final String LIVE_SKIP_PASSWORD = "live_skip_password";
     public static final String CLUD_VERSION_CODE = "clud_version_code";
 
+    public static final String SEARCH_RECORD_DATAS="search_record_datas";
+
     public static boolean isDebug() {
         return Hawk.get(DEBUG_OPEN, false);
     }
