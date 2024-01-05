@@ -2,6 +2,7 @@ package com.github.lemon.osc.base;
 
 import androidx.multidex.MultiDexApplication;
 import com.github.catvod.crawler.JsLoader;
+import com.github.lemon.osc.bean.Subscription;
 import com.github.lemon.osc.callback.EmptyCallback;
 import com.github.lemon.osc.callback.LoadingCallback;
 import com.github.lemon.osc.data.AppDataManager;
@@ -18,6 +19,9 @@ import com.orhanobut.hawk.Hawk;
 import com.p2p.P2PClass;
 import com.whl.quickjs.android.QuickJSLoader;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.Flow;
+
 import me.jessyan.autosize.AutoSizeConfig;
 import me.jessyan.autosize.unit.Subunits;
 
@@ -31,7 +35,7 @@ public class App extends MultiDexApplication {
     private static P2PClass p;
     public static String burl;
     private static String dashData;
-    
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -107,6 +111,17 @@ public class App extends MultiDexApplication {
         putDefault(HawkConfig.PARSE_WEBVIEW, true);          //嗅探Webview: true=系统自带, false=XWalkView
         putDefault(HawkConfig.DOH_URL, 0);                   //安全DNS: 0=关闭, 1=腾讯, 2=阿里, 3=360, 4=Google, 5=AdGuard, 6=Quad9
 
+        ArrayList<String> mSubscriptions = Hawk.get(HawkConfig.API_URL, new ArrayList<>());
+        if (mSubscriptions.size()==0) {
+            mSubscriptions.add(HawkConfig.DEFAUT_API_URL);//guo
+            mSubscriptions.add("http://饭太硬.top/tv");//饭太硬线路
+            mSubscriptions.add("https://tvbox.cainisi.cf");//菜妮丝线路
+            mSubscriptions.add("https://xhdwc.tk/0");//骚零接口
+            mSubscriptions.add("http://xutv.alwaysdata.net/xu1027.json");//网友线路
+            mSubscriptions.add("http://tv.nxog.top/m/111.php?ou=%E6%AC%A7%E6%AD%8C&mz=index2&xl=&jar=index2");//欧歌接口
+
+            Hawk.put(HawkConfig.API_URL, mSubscriptions);
+        }
     }
 
     private void initLocale() {
