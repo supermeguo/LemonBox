@@ -72,7 +72,7 @@ public class CheckVersionDialog extends BaseDialog {
             @Override
             public void onClick(View view) {
                 if (!isFinsh) {
-                    Toast.makeText(mContext, "正在下载最安装包", Toast.LENGTH_LONG).show();
+                    Toast.makeText(mContext, "正在下载新最安装包", Toast.LENGTH_LONG).show();
                     return;
                 }
                 isFinsh = false;
